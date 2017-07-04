@@ -32,6 +32,7 @@ void setup_connection(struct dane_query_st *state)
 
     /* Schedule opening the TLS connection to the addresses (if any)
      * and verification with the received TLSAs (if any)
+     * i.e. uv_tcp_connect(connect, socket, dest, callback);
      */
 }
 
