@@ -47,22 +47,17 @@ int main()
 {
     getdns_return_t r = GETDNS_RETURN_MEMORY_ERROR;
     getdns_context *ctxt = NULL;
-    getdns_dict *resp = NULL;
-    getdns_bindata *address;
-    char address_str[1024];
-    uv_loop_t *loop = malloc(sizeof(uv_loop_t));
+    uv_loop_t loop;
 
-    if (!loop)
-        fprintf( stderr, "Could not allocate event loop\n");
-
-    else if (uv_loop_init(loop))
+    if (uv_loop_init(&loop)) {
         fprintf( stderr, "Could not initialize event loop\n");
-
+	return EXIT_FAILURE;
+    }
     else if ((r = getdns_context_create(&ctxt, 1)))
         fprintf( stderr, "Could not create context: %s\n"
                , getdns_get_errorstr_by_id(r));
 
-    else if ((r = getdns_extension_set_libuv_loop(ctxt, loop)))
+    else if ((r = getdns_extension_set_libuv_loop(ctxt, &loop)))
         fprintf( stderr, "Unable to set the event loop: %s\n"
                , getdns_get_errorstr_by_id(r));
 
@@ -71,14 +66,10 @@ int main()
         fprintf( stderr, "Unable to schedule an address lookup: %s\n"
                , getdns_get_errorstr_by_id(r));
     else
-        uv_run(loop, UV_RUN_DEFAULT);
+        uv_run(&loop, UV_RUN_DEFAULT);
 
     if (ctxt)
         getdns_context_destroy(ctxt);
-    if (loop) {
-        uv_loop_close(loop);
-        free(loop);
-    }
     return r ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
